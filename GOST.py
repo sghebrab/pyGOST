@@ -66,7 +66,7 @@ class GOST:
 
     def pad_message(self):
         message_len = len(self.message)
-        len_after_pad = (message_len // 64 + 1)*64
+        len_after_pad = (message_len // 64 + 1) * 64
         self.message = self.message.ljust(len_after_pad, '0')
 
     def encrypt_block(self, message):
@@ -95,9 +95,9 @@ class GOST:
 
     def f_round(self, msg_hi, msg_lo, sub_key):
         tmp = msg_lo
-        modulo2add = bin((int(msg_lo, 2) + int(sub_key, 2)) % 2**32)[2:].zfill(32)
-        pass_sbox = self.s_box_half_block_in(modulo2add)
-        shifted = shift_11(pass_sbox)
+        modulo2add = bin((int(msg_lo, 2) + int(sub_key, 2)) % 2 ** 32)[2:].zfill(32)
+        pass_s_box = self.s_box_half_block_in(modulo2add)
+        shifted = shift_11(pass_s_box)
         msg_lo = bin(int(shifted, 2) ^ int(msg_hi, 2))[2:].zfill(32)
         msg_hi = tmp
         return msg_hi, msg_lo
@@ -105,7 +105,7 @@ class GOST:
     def s_box_half_block_in(self, half_block):
         result = ""
         for i in range(8):
-            result = result + self.sub_box(half_block[i*4:(i+1)*4], i)
+            result = result + self.sub_box(half_block[i * 4:(i + 1) * 4], i)
         return result
 
     def sub_box(self, msg_bin, i):
@@ -113,7 +113,8 @@ class GOST:
         return bin(self.SUB_BOXES[i][index])[2:].zfill(4)
 
     def encrypt(self, mode=CBC):
-        messages = [self.message[i * self.BLOCK_LEN:(i + 1) * self.BLOCK_LEN] for i in range(len(self.message) // self.BLOCK_LEN)]
+        messages = [self.message[i * self.BLOCK_LEN:(i + 1) * self.BLOCK_LEN] for i in
+                    range(len(self.message) // self.BLOCK_LEN)]
         if mode == self.ECB:
             encrypted = []
             for i in range(len(messages)):
@@ -135,7 +136,8 @@ class GOST:
             print("Error: choose between ECB and CBC.")
 
     def decrypt(self, mode=CBC):
-        messages = [self.encrypted[i * self.BLOCK_LEN:(i + 1) * self.BLOCK_LEN] for i in range(len(self.encrypted) // self.BLOCK_LEN)]
+        messages = [self.encrypted[i * self.BLOCK_LEN:(i + 1) * self.BLOCK_LEN] for i in
+                    range(len(self.encrypted) // self.BLOCK_LEN)]
         if mode == self.ECB:
             decrypted = []
             for i in range(len(messages)):
