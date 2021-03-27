@@ -46,7 +46,7 @@ class GOST:
 
     def set_key(self, key):
         self.key = key
-        self.derive_subkeys()
+        self.derive_sub_keys()
 
     def get_sub_keys(self):
         return self.sub_keys
@@ -67,7 +67,7 @@ class GOST:
     def pad_message(self):
         message_len = len(self.message)
         len_after_pad = (message_len // 64 + 1)*64
-        self.message = self.message.zfill(len_after_pad)
+        self.message = self.message.ljust(len_after_pad, '0')
 
     def encrypt_block(self, message):
         if len(message) != self.BLOCK_LEN:
@@ -77,11 +77,8 @@ class GOST:
         msg_lo = message[32:64]
         for i in range(24):
             msg_hi, msg_lo = self.f_round(msg_hi, msg_lo, self.sub_keys[i % 8])
-            #print("Enc round: ", i, "Block: ", msg_hi + msg_lo, "Subkey #: ", i % 8)
         for i in range(8, 0, -1):
             msg_hi, msg_lo = self.f_round(msg_hi, msg_lo, self.sub_keys[i - 1])
-            #print("Enc round: ", 32-i, "Block: ", msg_hi + msg_lo, "Subkey #: ", i - 1)
-        #self.encrypted = msg_lo + msg_hi
         return msg_lo + msg_hi
 
     def decrypt_block(self, ciphertext):
@@ -92,11 +89,8 @@ class GOST:
         msg_lo = ciphertext[32:64]
         for i in range(8):
             msg_hi, msg_lo = self.f_round(msg_hi, msg_lo, self.sub_keys[i])
-            #print("Dec round: ", i, "Block: ", msg_hi + msg_lo, "Subkey #: ", i)
         for i in range(24):
             msg_hi, msg_lo = self.f_round(msg_hi, msg_lo, self.sub_keys[7 - (i % 8)])
-            #print("Dec round: ", i+8, "Block: ", msg_hi + msg_lo, "Subkey #: ", 7 - i % 8)
-        #self.decrypted = msg_lo + msg_hi
         return msg_lo + msg_hi
 
     def f_round(self, msg_hi, msg_lo, sub_key):
@@ -161,7 +155,7 @@ class GOST:
         else:
             print("Error: choose between ECB and CBC.")
 
-    def derive_subkeys(self):
+    def derive_sub_keys(self):
         if len(self.key) != self.KEY_LEN:
             print("Error: key length must be 256 bits.")
             self.key = None

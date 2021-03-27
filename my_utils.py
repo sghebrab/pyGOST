@@ -1,3 +1,5 @@
+import hashlib
+
 def string_to_bytes(message):
     bin_array = bytearray(message, "utf8")
     byte_list = list()
@@ -32,3 +34,12 @@ def bytes_to_string(bytes_in):
             i += 3
         i += 1
     return result
+
+def gen_passwd_from_SHA256(password):
+    sha = hashlib.sha256()
+    sha.update(bytes(password, 'utf-8'))
+    sha_to_bytes = sha.digest()
+    key = ""
+    for i in range(0, 32):
+        key = key + bin(sha_to_bytes[i])[2:].zfill(8)
+    return key
