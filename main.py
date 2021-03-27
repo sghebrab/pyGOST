@@ -1,5 +1,10 @@
 import hashlib
 
+
+def shift_11(msg_bin):
+    return msg_bin[11:32] + msg_bin[0:11]
+
+
 class GOST:
     BLOCK_LEN = 64
     KEY_LEN = 256
@@ -16,96 +21,111 @@ class GOST:
         [1, 7, _0xE, _0xD, 0, 5, 8, 3, 4, _0xF, _0xA, 6, 9, _0xC, _0xB, 2],
     ]
 
-
     def __init__(self):
         self.message = None
         self.key = None
-        self.sub_keys = None
+        self.sub_keys = []
+        self.encrypted = None
+        self.decrypted = None
+
+    def get_message(self):
+        return self.message
 
     def set_message(self, message):
-        self.message = bin(message)
+        self.message = bin(message)[2:]
+        if len(self.message) % 64 != 0:
+            self.pad_message()
+
+    def set_encrypted_msg(self, ciphertext):
+        self.encrypted = ciphertext
+
+    def get_key(self):
+        return self.key
 
     def set_key(self, key):
         self.key = key
-        self.sub_keys = self.derive_subkeys(key)
+        self.derive_subkeys()
 
-    def encipher_block(self, bin_msg, subkeys):
-        if len(bin_msg) != self.BLOCK_LEN:
+    def get_sub_keys(self):
+        return self.sub_keys
+
+    def pad_message(self):
+        message_len = len(self.message)
+        len_after_pad = (message_len // 64 + 1)*64
+        self.message = self.message.zfill(len_after_pad)
+
+    def encipher_block(self):
+        if len(self.message) != self.BLOCK_LEN:
             print("Error: block length must be 64 bits.")
             return
-        msg_hi = bin_msg[0:32]
-        msg_lo = bin_msg[32:64]
+        msg_hi = self.message[0:32]
+        msg_lo = self.message[32:64]
         for i in range(24):
-            msg_hi, msg_lo = f_round(msg_hi, msg_lo, subkeys[i % 8])
+            msg_hi, msg_lo = self.f_round(msg_hi, msg_lo, self.sub_keys[i % 8])
             #print("Enc round: ", i, "Block: ", msg_hi + msg_lo, "Subkey #: ", i % 8)
         for i in range(8, 0, -1):
-            msg_hi, msg_lo = f_round(msg_hi, msg_lo, subkeys[i - 1])
+            msg_hi, msg_lo = self.f_round(msg_hi, msg_lo, self.sub_keys[i - 1])
             #print("Enc round: ", 32-i, "Block: ", msg_hi + msg_lo, "Subkey #: ", i - 1)
-        return msg_lo + msg_hi
+        self.encrypted = msg_lo + msg_hi
+        return self.encrypted
 
-    def decipher_block(bin_msg, subkeys, iv=None):
-        if len(bin_msg) != BLOCK_LEN:
+    def decipher_block(self):
+        if len(self.message) != self.BLOCK_LEN:
             print("Error: block length must be 64 bits.")
             return
-        msg_hi = bin_msg[0:32]
-        msg_lo = bin_msg[32:64]
+        msg_hi = self.encrypted[0:32]
+        msg_lo = self.encrypted[32:64]
         for i in range(8):
-            msg_hi, msg_lo = f_round(msg_hi, msg_lo, subkeys[i])
+            msg_hi, msg_lo = self.f_round(msg_hi, msg_lo, self.sub_keys[i])
             #print("Dec round: ", i, "Block: ", msg_hi + msg_lo, "Subkey #: ", i)
         for i in range(24):
-            msg_hi, msg_lo = f_round(msg_hi, msg_lo, subkeys[7 - (i % 8)])
+            msg_hi, msg_lo = self.f_round(msg_hi, msg_lo, self.sub_keys[7 - (i % 8)])
             #print("Dec round: ", i+8, "Block: ", msg_hi + msg_lo, "Subkey #: ", 7 - i % 8)
-        return msg_lo + msg_hi
+        self.decrypted = msg_lo + msg_hi
+        return self.decrypted
 
-
-    def f_round(msg_hi, msg_lo, sub_key):
+    def f_round(self, msg_hi, msg_lo, sub_key):
         tmp = msg_lo
         modulo2add = bin((int(msg_lo, 2) + int(sub_key, 2)) % 2**32)[2:].zfill(32)
-        pass_sbox = s_box_hblock_in(modulo2add)
+        pass_sbox = self.s_box_hblock_in(modulo2add)
         shifted = shift_11(pass_sbox)
         msg_lo = bin(int(shifted, 2) ^ int(msg_hi, 2))[2:].zfill(32)
         msg_hi = tmp
         return msg_hi, msg_lo
 
-
-    def s_box_hblock_in(half_block):
+    def s_box_hblock_in(self, half_block):
         result = ""
         for i in range(8):
-            result = result + sub_box(half_block[i*4:(i+1)*4], i)
+            result = result + self.sub_box(half_block[i*4:(i+1)*4], i)
         return result
 
-
-    def sub_box(msg_bin, i):
+    def sub_box(self, msg_bin, i):
         index = int(msg_bin, 2)
-        return bin(SUB_BOXES[i][index])[2:].zfill(4)
+        return bin(self.SUB_BOXES[i][index])[2:].zfill(4)
 
-
-    def shift_11(msg_bin):
-        return msg_bin[11:32] + msg_bin[0:11]
-
-
-    def derive_subkeys(key):
-        if len(key) != KEY_LEN:
+    def derive_subkeys(self):
+        if len(self.key) != self.KEY_LEN:
             print("Error: key length must be 256 bits.")
+            self.key = None
             return
-        sub_keys = []
         for i in range(8):
-            sub_keys.append(key[8 * i:(i + 1) * 8])
-        return sub_keys
+            self.sub_keys.append(key[32 * i:(i + 1) * 32])
+
 
 gost = GOST()
-msg = bin(157)[2:].zfill(64)
+msg = 157
 sha = hashlib.sha256()
 sha.update(b"SecretKey")
 bytes = sha.digest()
 key = ""
 for i in range(0, 32):
     key = key + bin(bytes[i])[2:].zfill(8)
-sub_keys = derive_subkeys(key)
-#iv = bin(0)[2:].zfill(64)
-print("Msg: ", msg, '\n', "Key: ", key, '\n', "IV: ")
-ciphertext = encipher_block(msg, sub_keys)
-print(ciphertext)
+gost.set_message(msg)
+gost.set_key(key)
+print("Msg: ", msg)
+print("Key: ", int(gost.get_key(), 2))
+ciphertext = gost.encipher_block()
+print("Encrypted: ", int(ciphertext, 2))
 
-deciphered = decipher_block(ciphertext, sub_keys)
-print(deciphered)
+deciphered = gost.decipher_block()
+print("Decrypted: ", int(deciphered, 2))
