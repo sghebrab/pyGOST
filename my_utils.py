@@ -43,3 +43,35 @@ def gen_passwd_from_SHA256(password):
     for i in range(0, 32):
         key = key + bin(sha_to_bytes[i])[2:].zfill(8)
     return key
+
+def encode_base64(message):
+    map = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+           "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f",
+           "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
+           "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "/"]
+    encoded = []
+    for i in range(len(message) // 6):
+        char = message[i*6:(i+1)*6]
+        char_to_num = int(char, 2)
+        encoded.append(map[char_to_num])
+    return ''.join(encoded)
+
+def decode_base64(message):
+    map = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+           "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f",
+           "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
+           "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "/"]
+    decoded = []
+    for i in range(len(message)):
+        char = map.index(message[i])
+        char_to_num = bin(char)[2:].zfill(6)
+        decoded.append(char_to_num)
+    return ''.join(decoded)
+
+def leading_zeros_hex(bin_message):
+    length = len(bin_message)
+    final_length = 0
+    if length % 64 != 0:
+        final_length = (length // 64 + 1)*64
+    final_message = hex(int(bin_message))[2:].zfill(final_length)
+    return final_message
