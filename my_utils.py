@@ -1,5 +1,6 @@
 import hashlib
 
+
 def string_to_bytes(message):
     bin_array = bytearray(message, "utf8")
     byte_list = list()
@@ -35,6 +36,7 @@ def bytes_to_string(bytes_in):
         i += 1
     return result
 
+
 def gen_passwd_from_SHA256(password):
     sha = hashlib.sha256()
     sha.update(bytes(password, 'utf-8'))
@@ -43,6 +45,7 @@ def gen_passwd_from_SHA256(password):
     for i in range(0, 32):
         key = key + bin(sha_to_bytes[i])[2:].zfill(8)
     return key
+
 
 def encode_base64(message):
     map = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
@@ -56,6 +59,7 @@ def encode_base64(message):
         encoded.append(map[char_to_num])
     return ''.join(encoded)
 
+
 def decode_base64(message):
     map = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
            "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f",
@@ -67,6 +71,7 @@ def decode_base64(message):
         char_to_num = bin(char)[2:].zfill(6)
         decoded.append(char_to_num)
     return ''.join(decoded)
+
 
 def leading_zeros_hex(bin_message):
     length = len(bin_message)
