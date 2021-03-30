@@ -16,8 +16,8 @@ print("IV: ", my_utils.leading_zeros_hex(gost.get_iv()))
 
 print("Encrypted: ", ciphertext)
 
-deciphered = gost.decrypt(gost.CBC)
-print("Decrypted: ", my_utils.bytes_to_string(deciphered))
+#deciphered = gost.decrypt(gost.CBC)
+#print("Decrypted: ", my_utils.bytes_to_string(deciphered))
 t2 = time.time()
 print("Elapsed time (s): ", t2 - t1)
 
@@ -25,7 +25,8 @@ print("Elapsed time (s): ", t2 - t1)
 gost2 = GOST()
 key2 = my_utils.PBKDF2("GOST is the best algorithm", salt)[0]
 gost2.set_key(key2)
-gost2.set_iv(gost.get_iv())
+iv2 = my_utils.leading_zeros_hex(gost.get_iv())
+gost2.set_iv(my_utils.hex_to_bin_mult_64(iv2))
 gost2.set_encrypted_msg(my_utils.hex_to_bin_mult_64(ciphertext))
 
 print("Decrypted from scratch: ", my_utils.bytes_to_string(gost2.decrypt()))
