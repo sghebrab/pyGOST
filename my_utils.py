@@ -39,7 +39,7 @@ def bytes_to_string(bytes_in):
     return result
 
 
-def my_PBKDF2(password, salt=None):
+def PBKDF2(password, salt=None):
     if salt is None:
         salt = random_salt()
     key_bytes = hashlib.pbkdf2_hmac('sha256', bytes(password, 'utf-8'), bytes(salt, 'utf-8'), 10000)
