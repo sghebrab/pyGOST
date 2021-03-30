@@ -1,4 +1,6 @@
 import hashlib
+import random
+import string
 
 
 def string_to_bytes(message):
@@ -37,14 +39,17 @@ def bytes_to_string(bytes_in):
     return result
 
 
-def gen_passwd_from_SHA256(password):
-    sha = hashlib.sha256()
-    sha.update(bytes(password, 'utf-8'))
-    sha_to_bytes = sha.digest()
+def gen_passwd_from_SHA256(password, salt=None):
+    if salt is None:
+        salt = random_salt()
+    key_bytes = hashlib.pbkdf2_hmac('sha256', bytes(password, 'utf-8'), bytes(salt, 'utf-8'), 10000)
+    #sha = hashlib.sha256()
+    #sha.update(bytes(password, 'utf-8'))
+    #sha_to_bytes = sha.digest()
     key = ""
     for i in range(0, 32):
-        key = key + bin(sha_to_bytes[i])[2:].zfill(8)
-    return key
+        key = key + bin(key_bytes[i])[2:].zfill(8)
+    return key, salt
 
 
 def encode_base64(message):
@@ -75,8 +80,35 @@ def decode_base64(message):
 
 def leading_zeros_hex(bin_message):
     length = len(bin_message)
-    final_length = 0
     if length % 64 != 0:
         final_length = (length // 64 + 1)*64
-    final_message = hex(int(bin_message))[2:].zfill(final_length)
-    return final_message
+        return hex(int(bin_message, 2))[2:].zfill(final_length)
+    return hex(int(bin_message, 2))[2:]
+
+
+def random_salt(size=20):
+    result = ""
+    random.seed()
+    for i in range(size):
+        rnd = random.randint(0, 3)
+        if rnd == 0:
+            result += random.choice(string.ascii_uppercase)
+        elif rnd == 1:
+            result += random.choice(string.ascii_lowercase)
+        elif rnd == 2:
+            result += random.choice(string.digits)
+        else:
+            result += random.choice(string.punctuation)
+    return result
+
+
+#This function takes as input a hex string and returns a binary strings whose length is
+#the minimum multiple of 64 above the length of the binarized hex string.
+#e.g. if hex string translates to 1101, then the result will be 62 zeros plus 1101
+def hex_to_bin_mult_64(hex_message):
+    length = len(bin(int(hex_message, 16))[2:])
+    if length % 64 != 0:
+        final_length = (length // 64 + 1) * 64
+        return bin(int(hex_message, 16))[2:].zfill(final_length)
+    return bin(int(hex_message, 16))[2:]
+
