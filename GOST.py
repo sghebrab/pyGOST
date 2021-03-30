@@ -38,6 +38,9 @@ class GOST:
         if len(self.message) % 64 != 0:
             self.pad_message()
 
+    def get_encrypted_msg(self):
+        return self.encrypted
+
     def set_encrypted_msg(self, ciphertext):
         self.encrypted = ciphertext
 
