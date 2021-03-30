@@ -1,6 +1,7 @@
 import hashlib
 import random
 import string
+from datetime import datetime
 
 
 def string_to_bytes(message):
@@ -66,7 +67,7 @@ def encode_base64(message):
 
 
 def decode_base64(message):
-    map = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+    b64_map = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
            "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f",
            "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
            "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "/"]
@@ -102,9 +103,9 @@ def random_salt(size=20):
     return result
 
 
-#This function takes as input a hex string and returns a binary strings whose length is
-#the minimum multiple of 64 above the length of the binarized hex string.
-#e.g. if hex string translates to 1101, then the result will be 62 zeros plus 1101
+# This function takes as input a hex string and returns a binary strings whose length is
+# the minimum multiple of 64 above the length of the binarized hex string.
+# e.g. if hex string translates to 1101, then the result will be 62 zeros plus 1101
 def hex_to_bin_mult_64(hex_message):
     length = len(bin(int(hex_message, 16))[2:])
     if length % 64 != 0:
@@ -112,3 +113,14 @@ def hex_to_bin_mult_64(hex_message):
         return bin(int(hex_message, 16))[2:].zfill(final_length)
     return bin(int(hex_message, 16))[2:]
 
+
+def write_to_file(path, ciphertext, iv, salt=None):
+    print("Writing to " + path + "...")
+    today = datetime.today().strftime("%d/%m/%Y")
+    file_handle = open(path, "a")
+    file_handle.write("Date: " + str(today) + "\n")
+    file_handle.write("Ciphertext (hex): " + ciphertext + "\n")
+    if salt is not None:
+        file_handle.write("Salt: " + salt + "\n")
+    file_handle.write("IV (hex): " + iv + "\n\n")
+    print("Done writing!")
