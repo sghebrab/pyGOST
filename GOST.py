@@ -57,8 +57,11 @@ class GOST:
     def get_iv(self):
         return self.iv
 
-    def set_iv(self, iv):
-        self.iv = iv
+    def set_iv(self, iv=None):
+        if iv is None:
+            self.init_iv()
+        else:
+            self.iv = iv
 
     def init_iv(self):
         iv = []
