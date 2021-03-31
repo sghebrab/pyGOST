@@ -32,10 +32,13 @@ def bytes_to_string(bytes_in):
             char = int(byte_list[i][4:8] + byte_list[i+1][2:8] + byte_list[i+2][2:8], 2)
             result += chr(char)
             i += 2
-        else:
+        elif byte_list[i][0:5] == "11110" and byte_list[i+1][0:2] == "10" and byte_list[i+2][0:2] == "10" and byte_list[i+3][0:2] == "10":
             char = int(byte_list[i][5:8] + byte_list[i+1][2:8] + byte_list[i+2][2:8] + byte_list[i+3][2:8], 2)
             result += chr(char)
             i += 3
+        else :
+            print("Error: a character cannot be decoded.")
+            return
         i += 1
     return result
 
