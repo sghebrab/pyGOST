@@ -43,7 +43,7 @@ def bytes_to_string(bytes_in):
     return result
 
 
-def PBKDF2(password, salt=None):
+def pbkdf2(password, salt=None):
     if salt is None:
         salt = random_salt()
     key_bytes = hashlib.pbkdf2_hmac('sha256', bytes(password, 'utf-8'), bytes(salt, 'utf-8'), 10000)
@@ -127,3 +127,13 @@ def write_to_file(path, ciphertext, iv, salt=None):
         file_handle.write("Salt: " + salt + "\n")
     file_handle.write("IV (hex): " + iv + "\n\n")
     print("Done writing!")
+
+def odds_zeros_ones(bin_message):
+    zeros = 0
+    ones = 0
+    for b in bin_message:
+        if b == "0":
+            zeros += 1
+        else:
+            ones += 1
+    return 100*zeros/len(bin_message), 100*ones/len(bin_message)

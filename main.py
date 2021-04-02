@@ -3,8 +3,8 @@ import my_utils
 import time
 
 # gost = GOST()
-# msg = "This algorithm is probably the best one I ever implemented <3."
-# key, salt = my_utils.PBKDF2("GOST is the best algorithm")
+# msg = "GOST"
+# key, salt = my_utils.pbkdf2("GOST is the best algorithm")
 # t1 = time.time()
 # gost.set_message(my_utils.string_to_bytes(msg))
 # gost.set_key(key)
@@ -12,7 +12,7 @@ import time
 # print("Key: ", my_utils.leading_zeros_hex(key))
 # print("Salt: ", salt)
 # ciphertext = my_utils.leading_zeros_hex(gost.encrypt(gost.CBC))
-# print("IV: ", my_utils.leading_zeros_hex(gost.get_iv()))
+# #print("IV: ", my_utils.leading_zeros_hex(gost.get_iv()))
 #
 # print("Encrypted: ", ciphertext)
 #
@@ -23,13 +23,13 @@ import time
 #
 # #Decrypt the ciphertext obtained before using a new GOST object
 # gost2 = GOST()
-# key2 = my_utils.PBKDF2("GOST is the best algorithm", salt)[0]
+# key2 = my_utils.pbkdf2("GOST is the best algorithm", salt)[0]
 # gost2.set_key(key2)
-# iv2 = my_utils.leading_zeros_hex(gost.get_iv())
-# gost2.set_iv(my_utils.hex_to_bin_mult_64(iv2))
+# #iv2 = my_utils.leading_zeros_hex(gost.get_iv())
+# #gost2.set_iv(my_utils.hex_to_bin_mult_64(iv2))
 # gost2.set_encrypted_msg(my_utils.hex_to_bin_mult_64(ciphertext))
 #
-# print("Decrypted from scratch: ", my_utils.bytes_to_string(gost2.decrypt()))
+# print("Decrypted from scratch: ", my_utils.bytes_to_string(gost2.decrypt(gost.CBC)))
 
 gost = GOST()
 go_on = True
@@ -43,9 +43,9 @@ while go_on:
         key, salt = None, None
         if salt_or_no.upper() == "Y":
             salt = input("Type the salt: ")
-            key = my_utils.PBKDF2(password, salt)[0]
+            key = my_utils.pbkdf2(password, salt)[0]
         else:
-            key, salt = my_utils.PBKDF2(password, salt)
+            key, salt = my_utils.pbkdf2(password, salt)
         time_b = time.time()
         gost.set_message(my_utils.string_to_bytes(message))
         gost.set_key(key)
@@ -67,12 +67,12 @@ while go_on:
             else:
                 my_utils.write_to_file(file_path, ciphertext, my_utils.leading_zeros_hex(gost.get_iv()))
     else:
-        ciphertext = input("Type the ciphertext: ")
+        ciphertext = input("Type the ciphertext (hex): ")
         password = input("Type the PASSWORD you want to use: ")
         salt = input("Type the salt: ")
-        iv = input("Type the IV: ")
+        iv = input("Type the IV (hex): ")
         time_b = time.time()
-        key, salt = my_utils.PBKDF2(password, salt)
+        key, salt = my_utils.pbkdf2(password, salt)
         gost.set_encrypted_msg(my_utils.hex_to_bin_mult_64(ciphertext))
         gost.set_key(key)
         gost.set_iv(my_utils.hex_to_bin_mult_64(iv))
