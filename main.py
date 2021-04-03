@@ -36,6 +36,8 @@ go_on = True
 error_message = "An error occurred while processing the data."
 while go_on:
     enc_or_dec = input("Type E to encrypt a message, D to decrypt one: ")
+    op_mode = input("Choose cipher operating mode (ECB or CBC): ")
+    gost.set_operation_mode(op_mode.upper())
     if enc_or_dec.upper() == "E":
         message = input("Type the MESSAGE you want to encrypt: ")
         password = input("Type the PASSWORD you want to use: ")
@@ -49,14 +51,16 @@ while go_on:
         time_b = time.time()
         gost.set_message(my_utils.string_to_bytes(message))
         gost.set_key(key)
-        gost.set_iv()
         ciphertext = my_utils.leading_zeros_hex(gost.encrypt())
         time_e = time.time()
         print("Data summary")
+        print("Operation mode: ", gost.get_operation_mode())
         print("Message: ", message)
         print("Password: ", password)
         print("Salt: ", salt)
-        print("IV (hex): ", my_utils.leading_zeros_hex(gost.get_iv()))
+        if op_mode.upper() != "ECB":
+            gost.set_iv()
+            print("IV (hex): ", my_utils.leading_zeros_hex(gost.get_iv()))
         print("\nEncrypted message (hex): ", ciphertext, '\n')
         print("Elapsed encryption time (s): ", time_e - time_b)
         file_or_no = input("Do you want to write the result to a file? (Y/N) ")
@@ -70,19 +74,22 @@ while go_on:
         ciphertext = input("Type the ciphertext (hex): ")
         password = input("Type the PASSWORD you want to use: ")
         salt = input("Type the salt: ")
-        iv = input("Type the IV (hex): ")
         time_b = time.time()
         key, salt = my_utils.pbkdf2(password, salt)
         gost.set_encrypted_msg(my_utils.hex_to_bin_mult_64(ciphertext))
         gost.set_key(key)
-        gost.set_iv(my_utils.hex_to_bin_mult_64(iv))
+        if op_mode.upper() != "ECB":
+            iv = input("Type the IV (hex): ")
+            gost.set_iv(my_utils.hex_to_bin_mult_64(iv))
         plaintext = my_utils.bytes_to_string(gost.decrypt())
         time_e = time.time()
         print("Data summary")
+        print("Operation mode: ", gost.get_operation_mode())
         print("Ciphertext (hex): ", ciphertext)
         print("Password: ", password)
         print("Salt: ", salt)
-        print("IV (hex): ", iv)
+        if op_mode.upper() != "ECB":
+            print("IV (hex): ", iv)
         print("\nDecrypted message: ", plaintext or error_message, '\n')
         print("Elapsed decryption time (s): ", time_e - time_b)
     go_on = input("Continue? (Y/N) ").upper() == "Y"
