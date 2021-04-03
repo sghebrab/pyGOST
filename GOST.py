@@ -86,7 +86,7 @@ class GOST:
         #zs, os = my_utils.odds_zeros_ones(msg_lo + msg_hi)
         #print("Round: ", self.GLOBAL_INDEX_ROUNDS, "\tZeros: ", zs, "\tOnes: ", os)
         #self.GLOBAL_INDEX_ROUNDS += 1
-        print(msg_hi + msg_lo)
+        #print(msg_hi + msg_lo)
         for i in range(24):
             msg_hi, msg_lo = self.f_round(msg_hi, msg_lo, self.sub_keys[i % 8])
             #zs, os = my_utils.odds_zeros_ones(msg_lo + msg_hi)

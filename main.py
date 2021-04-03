@@ -3,15 +3,15 @@ import my_utils
 import time
 
 # gost = GOST()
-# msg = "GOST"
-# key, salt = my_utils.pbkdf2("GOST is the best algorithm")
+# msg = "Hello, world!"
+# key, salt = my_utils.pbkdf2("Hallelujah", "")
 # t1 = time.time()
 # gost.set_message(my_utils.string_to_bytes(msg))
 # gost.set_key(key)
 # print("Msg: ", msg)
 # print("Key: ", my_utils.leading_zeros_hex(key))
 # print("Salt: ", salt)
-# ciphertext = my_utils.leading_zeros_hex(gost.encrypt(gost.CBC))
+# ciphertext = my_utils.leading_zeros_hex(gost.encrypt(gost.ECB))
 # #print("IV: ", my_utils.leading_zeros_hex(gost.get_iv()))
 #
 # print("Encrypted: ", ciphertext)
@@ -23,13 +23,13 @@ import time
 #
 # #Decrypt the ciphertext obtained before using a new GOST object
 # gost2 = GOST()
-# key2 = my_utils.pbkdf2("GOST is the best algorithm", salt)[0]
+# key2 = my_utils.pbkdf2("Hallelujah", salt)[0]
 # gost2.set_key(key2)
 # #iv2 = my_utils.leading_zeros_hex(gost.get_iv())
 # #gost2.set_iv(my_utils.hex_to_bin_mult_64(iv2))
 # gost2.set_encrypted_msg(my_utils.hex_to_bin_mult_64(ciphertext))
 #
-# print("Decrypted from scratch: ", my_utils.bytes_to_string(gost2.decrypt(gost.CBC)))
+# print("Decrypted from scratch: ", my_utils.bytes_to_string(gost2.decrypt(gost.ECB)))
 
 gost = GOST()
 go_on = True
