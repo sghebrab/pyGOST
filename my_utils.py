@@ -36,7 +36,7 @@ def bytes_to_string(bytes_in):
             char = int(byte_list[i][5:8] + byte_list[i+1][2:8] + byte_list[i+2][2:8] + byte_list[i+3][2:8], 2)
             result += chr(char)
             i += 3
-        else :
+        else:
             print("Error: a character cannot be decoded.")
             return
         i += 1
@@ -47,39 +47,39 @@ def pbkdf2(password, salt=None):
     if salt is None:
         salt = random_salt()
     key_bytes = hashlib.pbkdf2_hmac('sha256', bytes(password, 'utf-8'), bytes(salt, 'utf-8'), 10000)
-    #sha = hashlib.sha256()
-    #sha.update(bytes(password, 'utf-8'))
-    #sha_to_bytes = sha.digest()
+    # sha = hashlib.sha256()
+    # sha.update(bytes(password, 'utf-8'))
+    # sha_to_bytes = sha.digest()
     key = ""
     for i in range(0, 32):
         key = key + bin(key_bytes[i])[2:].zfill(8)
     return key, salt
 
 
-def encode_base64(message):
-    map = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
-           "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f",
-           "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
-           "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "/"]
-    encoded = []
-    for i in range(len(message) // 6):
-        char = message[i*6:(i+1)*6]
-        char_to_num = int(char, 2)
-        encoded.append(map[char_to_num])
-    return ''.join(encoded)
-
-
-def decode_base64(message):
-    b64_map = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
-           "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f",
-           "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
-           "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "/"]
-    decoded = []
-    for i in range(len(message)):
-        char = map.index(message[i])
-        char_to_num = bin(char)[2:].zfill(6)
-        decoded.append(char_to_num)
-    return ''.join(decoded)
+# def encode_base64(message):
+#     map = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+#            "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f",
+#            "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
+#            "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "/"]
+#     encoded = []
+#     for i in range(len(message) // 6):
+#         char = message[i*6:(i+1)*6]
+#         char_to_num = int(char, 2)
+#         encoded.append(map[char_to_num])
+#     return ''.join(encoded)
+#
+#
+# def decode_base64(message):
+#     b64_map = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+#            "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f",
+#            "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
+#            "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "/"]
+#     decoded = []
+#     for i in range(len(message)):
+#         char = b64_map.index(message[i])
+#         char_to_num = bin(char)[2:].zfill(6)
+#         decoded.append(char_to_num)
+#     return ''.join(decoded)
 
 
 def leading_zeros_hex(bin_message):
@@ -127,6 +127,7 @@ def write_to_file(path, ciphertext, iv, salt=None):
         file_handle.write("Salt: " + salt + "\n")
     file_handle.write("IV (hex): " + iv + "\n\n")
     print("Done writing!")
+
 
 def odds_zeros_ones(bin_message):
     zeros = 0

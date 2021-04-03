@@ -1,5 +1,4 @@
 import random
-import my_utils
 
 
 def shift_11(msg_bin):
@@ -93,21 +92,10 @@ class GOST:
             return
         msg_hi = message[0:32]
         msg_lo = message[32:64]
-        #zs, os = my_utils.odds_zeros_ones(msg_lo + msg_hi)
-        #print("Round: ", self.GLOBAL_INDEX_ROUNDS, "\tZeros: ", zs, "\tOnes: ", os)
-        #self.GLOBAL_INDEX_ROUNDS += 1
-        #print(msg_hi + msg_lo)
         for i in range(24):
             msg_hi, msg_lo = self.f_round(msg_hi, msg_lo, self.sub_keys[i % 8])
-            #zs, os = my_utils.odds_zeros_ones(msg_lo + msg_hi)
-            #print("Round: ", self.GLOBAL_INDEX_ROUNDS, "\tZeros: ", zs, "\tOnes: ", os)
-            #self.GLOBAL_INDEX_ROUNDS += 1
         for i in range(8, 0, -1):
             msg_hi, msg_lo = self.f_round(msg_hi, msg_lo, self.sub_keys[i - 1])
-            #zs, os = my_utils.odds_zeros_ones(msg_lo + msg_hi)
-            #print("Round: ", self.GLOBAL_INDEX_ROUNDS, "\tZeros: ", zs, "\tOnes: ", os)
-            #self.GLOBAL_INDEX_ROUNDS += 1
-        #self.GLOBAL_INDEX_ROUNDS = 0
         return msg_lo + msg_hi
 
     def decrypt_block(self, ciphertext):
