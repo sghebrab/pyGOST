@@ -31,6 +31,7 @@ class GOST:
         self.encrypted = None
         self.decrypted = None
         self.iv = None
+        self.operation_mode = self.CBC
 
     def get_message(self):
         return self.message
@@ -64,6 +65,15 @@ class GOST:
             self.init_iv()
         else:
             self.iv = iv
+
+    def get_operation_mode(self):
+        return self.operation_mode
+
+    def set_operation_mode(self, op_mode):
+        if op_mode.upper() == "ECB":
+            self.operation_mode = self.ECB
+        else:
+            self.operation_mode = self.CBC
 
     def init_iv(self):
         iv = []
@@ -131,16 +141,16 @@ class GOST:
         index = int(msg_bin, 2)
         return bin(self.SUB_BOXES[i][index])[2:].zfill(4)
 
-    def encrypt(self, mode=CBC):
+    def encrypt(self):
         messages = [self.message[i * self.BLOCK_LEN:(i + 1) * self.BLOCK_LEN] for i in
                     range(len(self.message) // self.BLOCK_LEN)]
-        if mode == self.ECB:
+        if self.operation_mode == self.ECB:
             encrypted = []
             for i in range(len(messages)):
                 encrypted.append(self.encrypt_block(messages[i]))
             self.encrypted = ''.join(encrypted)
             return self.encrypted
-        elif mode == self.CBC:
+        elif self.operation_mode == self.CBC:
             if self.iv is None:
                 self.init_iv()
             curr_iv = self.iv
@@ -154,16 +164,16 @@ class GOST:
         else:
             print("Error: choose between ECB and CBC.")
 
-    def decrypt(self, mode=CBC):
+    def decrypt(self):
         messages = [self.encrypted[i * self.BLOCK_LEN:(i + 1) * self.BLOCK_LEN] for i in
                     range(len(self.encrypted) // self.BLOCK_LEN)]
-        if mode == self.ECB:
+        if self.operation_mode == self.ECB:
             decrypted = []
             for i in range(len(messages)):
                 decrypted.append(self.decrypt_block(messages[i]))
             self.decrypted = ''.join(decrypted)
             return self.decrypted
-        elif mode == self.CBC:
+        elif self.operation_mode == self.CBC:
             curr_iv = self.iv
             decrypted = []
             for i in range(len(messages)):
