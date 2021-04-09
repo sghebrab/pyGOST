@@ -10,7 +10,7 @@ class GOST:
     BLOCK_LEN = 64
     KEY_LEN = 256
     _0xA, _0xB, _0xC, _0xD, _0xE, _0xF = 10, 11, 12, 13, 14, 15
-    ECB, CBC = "ECB", "CBC"
+    ECB, CBC, OFB, CFB, CTR = "ECB", "CBC", "OFB", "CFB", "CTR"
 
     SUB_BOXES = [
         [_0xC, 4, 6, 2, _0xA, 5, _0xB, 9, _0xE, 8, _0xD, 7, 0, 3, _0xF, 1],
@@ -46,6 +46,9 @@ class GOST:
     def set_encrypted_msg(self, ciphertext):
         self.encrypted = ciphertext
 
+    def get_decrypted_msg(self):
+        return self.decrypted
+
     def get_key(self):
         return self.key
 
@@ -69,10 +72,7 @@ class GOST:
         return self.operation_mode
 
     def set_operation_mode(self, op_mode):
-        if op_mode.upper() == "ECB":
-            self.operation_mode = self.ECB
-        else:
-            self.operation_mode = self.CBC
+        self.operation_mode = op_mode
 
     def init_iv(self):
         iv = []
@@ -132,12 +132,14 @@ class GOST:
     def encrypt(self):
         messages = [self.message[i * self.BLOCK_LEN:(i + 1) * self.BLOCK_LEN] for i in
                     range(len(self.message) // self.BLOCK_LEN)]
+        #Electronic Codebook Mode
         if self.operation_mode == self.ECB:
             encrypted = []
             for i in range(len(messages)):
                 encrypted.append(self.encrypt_block(messages[i]))
             self.encrypted = ''.join(encrypted)
             return self.encrypted
+        #Cipher Block Chaining Mode
         elif self.operation_mode == self.CBC:
             if self.iv is None:
                 self.init_iv()
@@ -149,8 +151,34 @@ class GOST:
                 encrypted.append(curr_iv)
             self.encrypted = ''.join(encrypted)
             return self.encrypted
+        #Output Feedback Mode
+        elif self.operation_mode == self.OFB:
+            if self.iv is None:
+                self.init_iv()
+            curr_iv = self.iv
+            encrypted = []
+            for i in range(len(messages)):
+                enc_block = self.encrypt_block(curr_iv)
+                applied_mask = bin(int(enc_block, 2) ^ int(messages[i], 2))[2:].zfill(self.BLOCK_LEN)
+                encrypted.append(applied_mask)
+                curr_iv = enc_block
+            self.encrypted = ''.join(encrypted)
+            return self.encrypted
+        #Cipher FeedBack Mode
+        elif self.operation_mode == self.CFB:
+            if self.iv is None:
+                self.init_iv()
+            curr_iv = self.iv
+            encrypted = []
+            for i in range(len(messages)):
+                enc_block = self.encrypt_block(curr_iv)
+                applied_mask = bin(int(enc_block, 2) ^ int(messages[i], 2))[2:].zfill(self.BLOCK_LEN)
+                encrypted.append(applied_mask)
+                curr_iv = applied_mask
+            self.encrypted = ''.join(encrypted)
+            return self.encrypted
         else:
-            print("Error: choose between ECB and CBC.")
+            print("Error. operation mode '", self.operation_mode, "' not recognized")
 
     def decrypt(self):
         messages = [self.encrypted[i * self.BLOCK_LEN:(i + 1) * self.BLOCK_LEN] for i in
@@ -171,8 +199,28 @@ class GOST:
                 decrypted.append(applied_mask)
             self.decrypted = ''.join(decrypted)
             return self.decrypted
+        elif self.operation_mode == self.OFB:
+            curr_iv = self.iv
+            decrypted = []
+            for i in range(len(messages)):
+                dec_block = self.encrypt_block(curr_iv) #beware: you need encryption even when decrypting!
+                applied_mask = bin(int(dec_block, 2) ^ int(messages[i], 2))[2:].zfill(self.BLOCK_LEN)
+                decrypted.append(applied_mask)
+                curr_iv = dec_block
+            self.decrypted = ''.join(decrypted)
+            return self.decrypted
+        elif self.operation_mode == self.CFB:
+            curr_iv = self.iv
+            decrypted = []
+            for i in range(len(messages)):
+                dec_block = self.encrypt_block(curr_iv)  # beware: you need encryption even when decrypting!
+                applied_mask = bin(int(dec_block, 2) ^ int(messages[i], 2))[2:].zfill(self.BLOCK_LEN)
+                decrypted.append(applied_mask)
+                curr_iv = messages[i]
+            self.decrypted = ''.join(decrypted)
+            return self.decrypted
         else:
-            print("Error: choose between ECB and CBC.")
+            print("Error. operation mode '", self.operation_mode, "' not recognized")
 
     def derive_sub_keys(self):
         if len(self.key) != self.KEY_LEN:
