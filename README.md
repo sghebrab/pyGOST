@@ -16,30 +16,47 @@ Here is an example of how the program should be used for both encryption an decr
 # Encryption
 
 from GOST import GOST
+
 import my_utils
 
 gost = GOST()
+
 key, salt = my_utils.pbkdf2('Password', 'Salt')
+
 gost.set_message(my_utils.string_to_bytes('Hello, world!'))
+
 gost.set_key(key)
+
 gost.set_operation_mode(gost.CBC)
+
 gost.encrypt()
+
 // you can get the resulting ciphertext with gost.get_encrypted_msg() and the IV with gost.get_iv()
+
 // the IV is randomly generated if not provided in the setup phase
 
 # Decryption
 
 from GOST import GOST
+
 import my_utils
 
 gost = GOST()
+
 key, salt = my_utils.pbkdf2('Password', 'Salt')
+
 ciphertext = // a k&ast;64 character string, where k = 0, 1, ...
+
 iv = // a 256 character string containing only 0s and 1s
+
 gost.set_iv(iv)
+
 gost.set_key(key)
+
 gost.set_operation_mode(gost.CBC)
+
 gost.set_encrypted_msg(ciphertext)
+
 gost.decrypt()
 
 # NOTES
