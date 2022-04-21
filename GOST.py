@@ -132,14 +132,14 @@ class GOST:
     def encrypt(self):
         messages = [self.message[i * self.BLOCK_LEN:(i + 1) * self.BLOCK_LEN] for i in
                     range(len(self.message) // self.BLOCK_LEN)]
-        #Electronic Codebook Mode
+        # Electronic Codebook Mode
         if self.operation_mode == self.ECB:
             encrypted = []
             for i in range(len(messages)):
                 encrypted.append(self.encrypt_block(messages[i]))
             self.encrypted = ''.join(encrypted)
             return self.encrypted
-        #Cipher Block Chaining Mode
+        # Cipher Block Chaining Mode
         elif self.operation_mode == self.CBC:
             if self.iv is None:
                 self.init_iv()
@@ -151,7 +151,7 @@ class GOST:
                 encrypted.append(curr_iv)
             self.encrypted = ''.join(encrypted)
             return self.encrypted
-        #Output Feedback Mode
+        # Output Feedback Mode
         elif self.operation_mode == self.OFB:
             if self.iv is None:
                 self.init_iv()
@@ -164,7 +164,7 @@ class GOST:
                 curr_iv = enc_block
             self.encrypted = ''.join(encrypted)
             return self.encrypted
-        #Cipher FeedBack Mode
+        # Cipher FeedBack Mode
         elif self.operation_mode == self.CFB:
             if self.iv is None:
                 self.init_iv()
@@ -175,6 +175,18 @@ class GOST:
                 applied_mask = bin(int(enc_block, 2) ^ int(messages[i], 2))[2:].zfill(self.BLOCK_LEN)
                 encrypted.append(applied_mask)
                 curr_iv = applied_mask
+            self.encrypted = ''.join(encrypted)
+            return self.encrypted
+        # Counter Mode
+        elif self.operation_mode == self.CTR:
+            if self.iv is None:
+                self.init_iv()
+            encrypted = []
+            for i in range(len(messages)):
+                curr_iv = bin(int(self.iv, 2) ^ i)[2:].zfill(self.BLOCK_LEN)
+                enc_bloc = self.encrypt_block(curr_iv)
+                applied_mask = bin(int(enc_bloc, 2) ^ int(messages[i], 2))[2:].zfill(self.BLOCK_LEN)
+                encrypted.append(applied_mask)
             self.encrypted = ''.join(encrypted)
             return self.encrypted
         else:
@@ -203,7 +215,7 @@ class GOST:
             curr_iv = self.iv
             decrypted = []
             for i in range(len(messages)):
-                dec_block = self.encrypt_block(curr_iv) #beware: you need encryption even when decrypting!
+                dec_block = self.encrypt_block(curr_iv) # beware: you need encryption even when decrypting!
                 applied_mask = bin(int(dec_block, 2) ^ int(messages[i], 2))[2:].zfill(self.BLOCK_LEN)
                 decrypted.append(applied_mask)
                 curr_iv = dec_block
@@ -217,6 +229,15 @@ class GOST:
                 applied_mask = bin(int(dec_block, 2) ^ int(messages[i], 2))[2:].zfill(self.BLOCK_LEN)
                 decrypted.append(applied_mask)
                 curr_iv = messages[i]
+            self.decrypted = ''.join(decrypted)
+            return self.decrypted
+        elif self.operation_mode == self.CTR:
+            decrypted = []
+            for i in range(len(messages)):
+                curr_iv = bin(int(self.iv, 2) ^ i)[2:].zfill(self.BLOCK_LEN)
+                dec_iv = self.encrypt_block(curr_iv)
+                dec_block = bin(int(dec_iv, 2) ^ int(messages[i], 2))[2:].zfill(self.BLOCK_LEN)
+                decrypted.append(dec_block)
             self.decrypted = ''.join(decrypted)
             return self.decrypted
         else:
