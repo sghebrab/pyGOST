@@ -9,9 +9,9 @@ The parameters required are always in binary form, so strings containing only 0s
 Using the encrypt and the decrypt methods (specifying, optionally, ECB or CBC mode) you'll be able to encrypt and decrypt the message you set or the ciphertext.
 If you encrypt a message, the result will also be stored in a GOST attribute, namely self.encrypted; if you then use the decrypt method, you won't need to set the ciphertext because it's already there.
 
-As of now, the library supports ECB, CBC, OFB and CFB modes.
+As of now, the library supports ECB, CBC, OFB, CFB and CTR modes.
 
-Here is an example of how the program should be used for both encryption an decryption.
+Here is an example of how the program should be used for both encryption and decryption.
 
 # Encryption
 
