@@ -1,4 +1,4 @@
-# GOST-cipher
+# pyGOST
 This Python program provides an implementation of the soviet GOST cipher.
 The GOST cipher is a symmetric block cipher that works on 64 bit blocks using 256 bit keys.
 The S-Boxes used in this implementation are conformed to the standard GOST R 34.12-2015.
