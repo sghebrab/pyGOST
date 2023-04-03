@@ -49,12 +49,12 @@ def bytes_to_string(bytes_in):
     return result
 
 
-def pbkdf2(password, salt=None):
+def pbkdf2(password, salt=None, iter=300000):
     # If salt is None, generate a random salt
     if salt is None:
         salt = random_salt()
     # Derive the key by hashing the password along with salt
-    key_bytes = hashlib.pbkdf2_hmac('sha256', bytes(password, 'utf-8'), bytes(salt, 'utf-8'), 10000)
+    key_bytes = hashlib.pbkdf2_hmac('sha256', bytes(password, 'utf-8'), bytes(salt, 'utf-8'), iter)
     key = ""
     # Since key_bytes is a list of bytes with length 32 (32*8 = 256 -> sha256), take every byte, convert it to bin, fill
     # it with leading zeros and append the result to the whole key
