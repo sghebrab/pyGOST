@@ -4,7 +4,7 @@ import time
 
 gost = GOST()
 msg = "Hello, world!"
-key, salt = my_utils.pbkdf2("Hallelujah", "")
+key, salt = my_utils.pbkdf2("Hallelujah", "", iter=100000)
 t1 = time.time()
 gost.set_message(my_utils.string_to_bytes(msg))
 gost.set_key(key)
@@ -20,7 +20,7 @@ print("Elapsed time (s): ", t2 - t1)
 
 # Decrypt the ciphertext obtained before using a new GOST object
 gost2 = GOST()
-key2 = my_utils.pbkdf2("Hallelujah", salt)[0]
+key2 = my_utils.pbkdf2("Hallelujah", salt, iter=100000)[0]
 gost2.set_key(key2)
 iv2 = my_utils.leading_zeros_hex(gost.get_iv())
 gost2.set_iv(my_utils.hex_to_bin_mult_64(iv2))
